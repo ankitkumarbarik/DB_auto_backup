@@ -11,15 +11,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # ✅ latest version
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4  # ✅ updated version
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
 
+      # ✅ Install MongoDB Database Tools (includes mongodump)
       - name: Install MongoDB Tools
-        run: sudo apt-get install -y mongodb-clients
+        run: |
+          wget -qO - https://pgp.mongodb.com/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
 
       - name: Run backup script
         env:
@@ -30,7 +35,7 @@ jobs:
           mongodump --uri="$MONGO_URI" --out="backups/latest"
 
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v4  # ✅ updated version
+        uses: actions/upload-artifact@v4
         with:
           name: mongodb-latest-backup
           path: backups/latest/

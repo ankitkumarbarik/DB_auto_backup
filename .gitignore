@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Environment files
+.env
+
+# Backups
+backups/
+
+# Logs
+*.log
+
+# System files
+.DS_Store

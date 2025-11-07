@@ -10,15 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
 
-      # install MongoDB tools
+      # Install MongoDB Tools
       - name: Install MongoDB Tools
         run: |
           wget -qO - https://pgp.mongodb.com/server-6.0.asc | sudo apt-key add -
@@ -26,13 +28,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mongodb-database-tools
 
-      # Delete old artifacts before new backup
+      # Delete old backup artifact (if exists)
       - name: Delete old artifacts
         uses: geekyeggo/delete-artifact@v2
         with:
           name: mongodb-latest-backup
+          failOnError: false   # ✅ Ignore error if no old artifact found
 
-      # Take new backup
+      # Run MongoDB Backup Script
       - name: Run backup script
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
@@ -41,7 +44,7 @@ jobs:
           mkdir -p backups
           mongodump --uri="$MONGO_URI" --out="backups/latest"
 
-      # Upload latest backup
+      # Upload the latest backup
       - name: Upload backup artifact
         uses: actions/upload-artifact@v4
         with:
